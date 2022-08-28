@@ -17,7 +17,7 @@ function getTweet(tweet) {
   return { ...tweet, avatar };
 }
 
-function isValid(body, fields, avatar) {
+function isValid(body, fields) {
   if (typeof body !== "object") {
     return false;
   }
@@ -30,7 +30,12 @@ function isValid(body, fields, avatar) {
       return false;
     }
   }
+
   return true;
+}
+
+function isUser(username) {
+  return signup.some((value) => value.username === username);
 }
 
 server.post("/sign-up", (req, res) => {
@@ -38,19 +43,18 @@ server.post("/sign-up", (req, res) => {
     res.status(400).send("Todos os campos são obrigatórios!");
     return;
   }
-
   if (
     !(
       req.body.avatar.startsWith("https://") ||
       req.body.avatar.startsWith("http://")
     )
   ) {
-    res.status(400).send("Verifique a URL da sua imagem");
+    res.status(400).send("Verifique a URL da sua imagem!");
     return;
   }
-
   signup.push(req.body);
   res.status(201).send("Ok");
+  console.log("Login feito com sucesso");
 });
 
 server.post("/tweets", (req, res) => {
@@ -58,6 +62,11 @@ server.post("/tweets", (req, res) => {
     res.status(400).send("Todos os campos são obrigatórios!");
     return;
   }
+  if (!isUser(req.body.username)) {
+    res.status(400).send("Faça login para enviar seu tweet");
+    return;
+  }
+
   tweets.push(req.body);
 
   res.status(201).send("Ok");
@@ -65,6 +74,7 @@ server.post("/tweets", (req, res) => {
 
 server.get("/tweets", (req, res) => {
   const lastTweets = tweets.slice(-10);
+
   res.send(lastTweets.map(getTweet));
 });
 
