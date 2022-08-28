@@ -17,15 +17,39 @@ function getTweet(tweet) {
   return { ...tweet, avatar };
 }
 
+function isValid(body, fields) {
+  if (typeof body !== "object") {
+    return false;
+  }
+  for (const field of fields) {
+    const value = body[field];
+    if (typeof value !== "string") {
+      return false;
+    }
+    if (value.length === 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 server.post("/sign-up", (req, res) => {
+  if (!isValid(req.body, ["username", "avatar"])) {
+    res.status(400).send("Todos os campos são obrigatórios!");
+    return;
+  }
   signup.push(req.body);
-  res.send("Ok");
+  res.status(201).send("Ok");
 });
 
 server.post("/tweets", (req, res) => {
+  if (!isValid(req.body, ["username", "tweet"])) {
+    res.status(400).send("Todos os campos são obrigatórios!");
+    return;
+  }
   tweets.push(req.body);
 
-  res.send("Ok");
+  res.status(201).send("Ok");
 });
 server.listen(port);
 
