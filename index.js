@@ -15,4 +15,9 @@ server.post("/sign-up", (req, res) => {
   res.send("Ok");
 });
 
+server.post("/tweets", (req, res) => {
+  tweets.push(req.body);
+
+  res.send("Ok");
+});
 server.listen(port);
