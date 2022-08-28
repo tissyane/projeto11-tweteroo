@@ -51,9 +51,16 @@ server.post("/tweets", (req, res) => {
 
   res.status(201).send("Ok");
 });
-server.listen(port);
 
 server.get("/tweets", (req, res) => {
   const lastTweets = tweets.slice(-10);
   res.send(lastTweets.map(getTweet));
 });
+
+server.get("/tweets/:username", (req, res) => {
+  const { username } = req.params;
+  const myTweets = tweets.filter((tweet) => tweet.username === username);
+  res.send(myTweets.map(getTweet));
+});
+
+server.listen(port);
