@@ -30,7 +30,6 @@ function isValid(body, fields) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -52,9 +51,12 @@ server.post("/sign-up", (req, res) => {
     res.status(400).send("Verifique a URL da sua imagem!");
     return;
   }
+  if (isUser(req.body.username)) {
+    res.status(400).send("Usuário já cadastrado");
+    return;
+  }
   signup.push(req.body);
   res.status(201).send("Ok");
-  console.log("Login feito com sucesso");
 });
 
 server.post("/tweets", (req, res) => {
@@ -63,24 +65,24 @@ server.post("/tweets", (req, res) => {
     return;
   }
   if (!isUser(req.body.username)) {
-    res.status(400).send("Faça login para enviar seu tweet");
+    res.status(400).send("Faça login para enviar seu tweet!");
     return;
   }
-
   tweets.push(req.body);
-
   res.status(201).send("Ok");
 });
 
 server.get("/tweets", (req, res) => {
-  const lastTweets = tweets.slice(-10);
+  const lastTweets = tweets.slice(-10).reverse();
 
   res.send(lastTweets.map(getTweet));
 });
 
 server.get("/tweets/:username", (req, res) => {
   const { username } = req.params;
-  const myTweets = tweets.filter((tweet) => tweet.username === username);
+  const myTweets = tweets
+    .reverse()
+    .filter((tweet) => tweet.username === username);
   res.send(myTweets.map(getTweet));
 });
 
