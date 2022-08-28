@@ -17,7 +17,7 @@ function getTweet(tweet) {
   return { ...tweet, avatar };
 }
 
-function isValid(body, fields) {
+function isValid(body, fields, avatar) {
   if (typeof body !== "object") {
     return false;
   }
@@ -38,6 +38,17 @@ server.post("/sign-up", (req, res) => {
     res.status(400).send("Todos os campos são obrigatórios!");
     return;
   }
+
+  if (
+    !(
+      req.body.avatar.startsWith("https://") ||
+      req.body.avatar.startsWith("http://")
+    )
+  ) {
+    res.status(400).send("Verifique a URL da sua imagem");
+    return;
+  }
+
   signup.push(req.body);
   res.status(201).send("Ok");
 });
