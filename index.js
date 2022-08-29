@@ -73,17 +73,37 @@ server.post("/tweets", (req, res) => {
 });
 
 server.get("/tweets", (req, res) => {
-  const lastTweets = tweets.slice(-10).reverse();
+  let page = parseInt(req.query.page);
+  const maxPage = Math.ceil(tweets.length / 10);
+
+  if (!page) {
+    page = 1;
+  }
+
+  if (page < 1 || page > maxPage) {
+    res.status(400).send({
+      message: "Informe uma página válida!",
+    });
+
+    return;
+  }
+
+  const lastTweets = [...tweets].reverse().splice(page * 10 - 10, 10);
 
   res.send(lastTweets.map(getTweet));
 });
 
 server.get("/tweets/:username", (req, res) => {
   const { username } = req.params;
-  const myTweets = tweets
-    .reverse()
-    .filter((tweet) => tweet.username === username);
-  res.send(myTweets.map(getTweet));
+
+  if (!isUser(username)) {
+    res.status(400).send("Usuário não cadastrado");
+    return;
+  }
+
+  const myTweets = tweets.filter((tweet) => tweet.username === username);
+
+  res.send(myTweets.reverse().map(getTweet));
 });
 
 server.listen(port);
