@@ -39,8 +39,9 @@ function isUser(username) {
 
 server.post("/sign-up", (req, res) => {
   if (!isValid(req.body, ["username", "avatar"])) {
-    res.status(400).send("Todos os campos são obrigatórios!");
-    return;
+    return res.status(400).send({
+      message: "Todos os campos são obrigatórios!",
+    });
   }
   if (
     !(
@@ -48,12 +49,14 @@ server.post("/sign-up", (req, res) => {
       req.body.avatar.startsWith("http://")
     )
   ) {
-    res.status(400).send("Verifique a URL da sua imagem!");
-    return;
+    return res.status(415).send({
+      message: "Verifique a URL da sua imagem!",
+    });
   }
   if (isUser(req.body.username)) {
-    res.status(400).send("Usuário já cadastrado");
-    return;
+    return res.status(409).send({
+      message: "Usuário já cadastrado",
+    });
   }
   signup.push(req.body);
   res.status(201).send("Ok");
@@ -61,31 +64,27 @@ server.post("/sign-up", (req, res) => {
 
 server.post("/tweets", (req, res) => {
   if (!isValid(req.body, ["username", "tweet"])) {
-    res.status(400).send("Todos os campos são obrigatórios!");
-    return;
+    return res.status(400).send({
+      message: "Todos os campos são obrigatórios!",
+    });
   }
   if (!isUser(req.body.username)) {
-    res.status(400).send("Faça login para enviar seu tweet!");
-    return;
+    return res.status(401).send({
+      message: "Faça login para enviar seu tweet!",
+    });
   }
   tweets.push(req.body);
   res.status(201).send("Ok");
 });
 
 server.get("/tweets", (req, res) => {
-  let page = parseInt(req.query.page);
+  const page = Number(req.query.page);
   const maxPage = Math.ceil(tweets.length / 10);
 
-  if (!page) {
-    page = 1;
-  }
-
   if (page < 1 || page > maxPage) {
-    res.status(400).send({
+    return res.status(400).send({
       message: "Informe uma página válida!",
     });
-
-    return;
   }
 
   const lastTweets = [...tweets].reverse().splice(page * 10 - 10, 10);
@@ -97,8 +96,9 @@ server.get("/tweets/:username", (req, res) => {
   const { username } = req.params;
 
   if (!isUser(username)) {
-    res.status(400).send("Usuário não cadastrado");
-    return;
+    return res.status(404).send({
+      message: "Usuário não cadastrado",
+    });
   }
 
   const myTweets = tweets.filter((tweet) => tweet.username === username);
